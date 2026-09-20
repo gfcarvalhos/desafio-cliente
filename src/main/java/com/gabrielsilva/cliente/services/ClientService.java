@@ -3,8 +3,10 @@ package com.gabrielsilva.cliente.services;
 import com.gabrielsilva.cliente.dto.ClientDTO;
 import com.gabrielsilva.cliente.entities.Client;
 import com.gabrielsilva.cliente.repositories.ClientRepository;
+import com.gabrielsilva.cliente.services.expections.DatabaseException;
 import com.gabrielsilva.cliente.services.expections.NoFoundElementException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,4 +33,27 @@ public class ClientService {
         Page<Client> result = repository.findAll(pegeable);
         return result.map(ClientDTO::new);
     }
+
+    @Transactional
+    public ClientDTO create(ClientDTO dto){
+        Client entity = new Client();
+
+        copyDtoToEntity(dto, entity);
+
+        if (repository.existsByCpf(dto.getCpf())) {
+            throw new DatabaseException("CPF já cadastrado");
+        }
+        entity = repository.save(entity);
+
+        return new ClientDTO(entity);
+    }
+
+    private void copyDtoToEntity(ClientDTO dto, Client entity) {
+        entity.setName(dto.getName());
+        entity.setChildren(dto.getChildren());
+        entity.setCpf(dto.getCpf());
+        entity.setIncome(dto.getIncome());
+        entity.setBirthDate(dto.getBirthDate());
+    }
+
 }
