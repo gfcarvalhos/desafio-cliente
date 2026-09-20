@@ -5,6 +5,7 @@ import com.gabrielsilva.cliente.entities.Client;
 import com.gabrielsilva.cliente.repositories.ClientRepository;
 import com.gabrielsilva.cliente.services.expections.DatabaseException;
 import com.gabrielsilva.cliente.services.expections.NoFoundElementException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -46,6 +47,20 @@ public class ClientService {
         entity = repository.save(entity);
 
         return new ClientDTO(entity);
+    }
+
+    @Transactional
+    public ClientDTO update(Long id, ClientDTO dto){
+        try {
+            Client entity = repository.getReferenceById(id);
+            copyDtoToEntity(dto, entity);
+            entity = repository.save(entity);
+
+            return new ClientDTO(entity);
+
+        } catch(EntityNotFoundException e) {
+            throw new NoFoundElementException("Cliente não encontrado");
+        }
     }
 
     private void copyDtoToEntity(ClientDTO dto, Client entity) {
