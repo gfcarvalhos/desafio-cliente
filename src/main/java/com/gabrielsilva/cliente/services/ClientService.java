@@ -3,6 +3,7 @@ package com.gabrielsilva.cliente.services;
 import com.gabrielsilva.cliente.dto.ClientDTO;
 import com.gabrielsilva.cliente.entities.Client;
 import com.gabrielsilva.cliente.repositories.ClientRepository;
+import com.gabrielsilva.cliente.services.expections.NoFoundElementException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,8 +18,8 @@ public class ClientService {
 
     @Transactional(readOnly = true)
     public ClientDTO findById(Long id){
-        Optional<Client> result = repository.findById(id);
-        Client cliente = result.get();
-        return new ClientDTO(cliente);
+        Client client = repository.findById(id)
+                .orElseThrow(() -> new NoFoundElementException("Cliente não encontrado"));
+        return new ClientDTO(client);
     }
 }
