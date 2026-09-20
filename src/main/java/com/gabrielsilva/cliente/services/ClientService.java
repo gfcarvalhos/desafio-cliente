@@ -63,6 +63,18 @@ public class ClientService {
         }
     }
 
+    @Transactional
+    public void delete(Long id){
+        if(!repository.existsById(id)) {
+            throw new NoFoundElementException("Cliente não encontrado");
+        }
+        try {
+            repository.deleteById(id);
+        } catch(EntityNotFoundException e) {
+            throw new DatabaseException("Falha de integridade referencial");
+        }
+    }
+
     private void copyDtoToEntity(ClientDTO dto, Client entity) {
         entity.setName(dto.getName());
         entity.setChildren(dto.getChildren());
